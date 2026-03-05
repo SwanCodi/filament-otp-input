@@ -21,7 +21,7 @@
 
 <x-dynamic-component
     :component="$getFieldWrapperView()"
-    :id="$getId()"
+    :id="$id"
     :label="$getLabel()"
     :label-sr-only="$isLabelHidden()"
     :helper-text="$getHelperText()"
@@ -29,13 +29,13 @@
     :hint-actions="$getHintActions()"
     :hint-icon="$getHintIcon()"
     :required="$isRequired()"
-    :state-path="$getStatePath()"
+    :state-path="$statePath"
 >
     <div x-data="{
-    	    state: $wire.$entangle('{{ $getStatePath() }}'),
-    	    length: {{$numberInput}},
-    	    autoFocus: '{{$isAutofocused}}',
-    	    type: '{{$inputType}}',
+            state: $wire.$entangle('{{ $statePath }}'),
+            length: {{ $numberInput }},
+            autoFocus: {{ $isAutofocused }},
+            type: '{{ $inputType }}',
             init: function(){
                 if (this.autoFocus){
                     this.$refs[1].focus();
@@ -48,17 +48,17 @@
                 }
 
                 this.state = Array.from(Array(this.length), (element, i) => {
-                    const el = this.$refs[(i + 1)];
+                    const el = this.$refs[i + 1];
                     return el.value ? el.value : '';
                 }).join('');
 
-
-                if (i < this.length) {
-                    this.$refs[i+1].focus();
-                    this.$refs[i+1].select();
+                if (i < this.length - 1) {
+                    this.$refs[i + 1].focus();
+                    this.$refs[i + 1].select();
                 }
-                if(i == this.length){
-                    @this.set('{{ $getStatePath() }}', this.state)
+
+                if(i == this.length - 1){
+                    @this.set('{{ $statePath }}', this.state);
                 }
             },
 
@@ -68,8 +68,8 @@
                 const inputs = Array.from(Array(this.length));
 
                 inputs.forEach((element, i) => {
-                    this.$refs[(i+1)].focus();
-                    this.$refs[(i+1)].value = paste[i] || '';
+                    this.$refs[i + 1].focus();
+                    this.$refs[i + 1].value = paste[i] || '';
                 });
             },
 
@@ -85,7 +85,6 @@
         <div class="flex justify-between gap-6 fi-otp-input-container" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
 
             @foreach(range(1, $numberInput) as $column)
-
                 <x-filament::input.wrapper
                     :disabled="$isDisabled"
                     :inline-prefix="$isPrefixInline"
@@ -98,25 +97,21 @@
                     :suffix-actions="$suffixActions"
                     :suffix-icon="$suffixIcon"
                     :suffix-icon-color="$getSuffixIconColor()"
-                    :valid="! $errors->has($statePath)"
-                    :attributes="
-                        \Filament\Support\prepare_inherited_attributes($getExtraAttributeBag())
-                        ->class(['fi-fo-text-input overflow-hidden'])
-                    "
+                    :valid="!$errors->has($statePath)"
+                    :attributes="Filament\Support\prepare_inherited_attributes($getExtraAttributeBag())->class(['fi-fo-text-input overflow-hidden'])"
                 >
                     <input
-                        {{$isDisabled ? 'disabled' : ''}}
-                        type="{{$inputType}}"
+                        {{ $isDisabled ? 'disabled' : '' }}
+                        type="{{ $inputType }}"
                         maxlength="1"
-                        x-ref="{{$column}}"
+                        x-ref="{{ $column }}"
                         required
-                        autocomplete="{{$autocomplete}}"
+                        autocomplete="{{ $autocomplete }}"
                         class="fi-input fi-otp-input block w-full border-none py-1.5 text-base text-gray-950 transition duration-75 placeholder:text-gray-400 focus:ring-0 disabled:text-gray-500 disabled:[-webkit-text-fill-color:theme(colors.gray.500)] disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.400)] dark:text-white dark:placeholder:text-gray-500 dark:disabled:text-gray-400 dark:disabled:[-webkit-text-fill-color:theme(colors.gray.400)] dark:disabled:placeholder:[-webkit-text-fill-color:theme(colors.gray.500)] sm:text-sm sm:leading-6 bg-white/0 ps-3 pe-3 text-center"
-                        x-on:input="handleInput($event, {{$column}})"
+                        x-on:input="handleInput($event, {{ $column }})"
                         x-on:paste="handlePaste($event)"
                         x-on:keydown.backspace="handleBackspace($event)"
                     />
-
                 </x-filament::input.wrapper>
             @endforeach
 
@@ -137,6 +132,6 @@
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
-        margin: 0
+        margin: 0;
     }
 </style>
